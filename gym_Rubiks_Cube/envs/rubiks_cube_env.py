@@ -5,17 +5,19 @@ import random
 from gym_Rubiks_Cube.envs import cube
 
 actionList = [
-        'f', 'r', 'l', 'u', 'd', 'b',
-        '.f', '.r', '.l', '.u', '.d', '.b']
+    'f', 'r', 'l', 'u', 'd', 'b',
+    '.f', '.r', '.l', '.u', '.d', '.b']
 
 tileDict = {
-    'R' : 0,
-    'O' : 1,
-    'Y' : 2,
-    'G' : 3,
-    'B' : 4,
-    'W' : 5,
+    'R': 0,
+    'O': 1,
+    'Y': 2,
+    'G': 3,
+    'B': 4,
+    'W': 5,
 }
+
+
 
 class RubiksCubeEnv(gym.Env):
     metadata = {'render.modes': ['human']}
@@ -25,9 +27,9 @@ class RubiksCubeEnv(gym.Env):
         self.action_space = spaces.Discrete(12)
         # input is 9x6 = 54 array
         self.orderNum = orderNum
-        low = np.array([0 for i in range(self.orderNum*self.orderNum*6)])
-        high = np.array([5 for i in range(self.orderNum*self.orderNum*6)])
-        self.observation_space = spaces.Box(low, high, dtype=np.uint8) # flattened
+        low = np.array([0 for i in range(self.orderNum * self.orderNum * 6)])
+        high = np.array([5 for i in range(self.orderNum * self.orderNum * 6)])
+        self.observation_space = spaces.Box(low, high, dtype=np.uint8)  # flattened
         self.step_count = 0
 
         self.scramble_low = 1
@@ -35,7 +37,7 @@ class RubiksCubeEnv(gym.Env):
         self.doScamble = True
 
     def _seed(self, seed=None):
-        self.np_random, seed = seeding.np_random(seed)
+        self.np_random, seed = np.random.seed(seed)
         return [seed]
 
     def step(self, action):
@@ -47,17 +49,16 @@ class RubiksCubeEnv(gym.Env):
         reward = 0.0
         done = False
         others = {}
-        if self.ncube.isSolved() :
+        if self.ncube.isSolved():
             reward = 1.0
             done = True
 
-        if self.step_count > 40 :
+        if self.step_count > 40:
             done = True
 
         return self.state, reward, done, others
 
-
-    def reset(self):
+    def reset(self, *params):
         self.state = {}
         self.ncube = cube.Cube(order=self.orderNum)
         if self.doScamble:
@@ -70,10 +71,14 @@ class RubiksCubeEnv(gym.Env):
     def getstate(self):
         return np.array([tileDict[i] for i in self.ncube.constructVectorState()])
 
-    def render(self, mode='human', close=False):
-        if close:
-            return
-        self.ncube.displayCube(isColor=True)
+    def render(self, mode='rgb', close=False):
+
+        #if close:
+        #    return
+        #self.ncube.displayCube(isColor=True)
+
+        return self.ncube.displayRGB(mode)
+
 
     def setScramble(self, low, high, doScamble=True):
         self.scramble_low = low
@@ -85,13 +90,12 @@ class RubiksCubeEnv(gym.Env):
         scramble_num = random.randint(self.scramble_low, self.scramble_high)
 
         # check if scramble
-        while self.ncube.isSolved() :
+        while self.ncube.isSolved():
             self.scramble_log = []
-            for i in range (scramble_num):
+            for i in range(scramble_num):
                 action = random.randint(0, 11)
                 self.scramble_log.append(action)
                 self.ncube.minimalInterpreter(actionList[action])
 
     def getlog(self):
         return self.scramble_log, self.action_log
-                
