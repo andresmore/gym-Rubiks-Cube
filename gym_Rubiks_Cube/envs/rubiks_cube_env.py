@@ -64,6 +64,7 @@ class RubiksCubeEnv(gym.Env):
         self.ncube = cube.Cube(order=self.orderNum)
         self.step_count = 0
         self.action_log = []
+        self.scramble_log = []
 
         if scramble == "auto":
             self.scramble()
