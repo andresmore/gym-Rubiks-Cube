@@ -34,7 +34,7 @@ class RubiksCubeEnv(gym.Env):
 
         self.scramble_low = 1
         self.scramble_high = 10
-        self.doScramble = False
+
         self.obs = None
         self.scramble_log = None
         self.action_log = None
@@ -58,13 +58,18 @@ class RubiksCubeEnv(gym.Env):
 
         return self.obs, reward, done, others
 
-    def reset(self, seed=None, options={}):
+    def reset(self, seed=None, scramble=None):
         super().reset(seed=seed)
         self.obs = {}
         self.ncube = cube.Cube(order=self.orderNum)
-        self.doScramble = options.get("doScramble", True)
-        if self.doScramble:
+
+        if scramble == "auto":
             self.scramble()
+        elif scramble:
+            for i in scramble:
+                action_num = actionList.index(i)
+                self.scramble_log.append(action_num)
+                self.ncube.minimalInterpreter(actionList[action_num])
 
         self.step_count = 0
         self.action_log = []
@@ -97,4 +102,3 @@ class RubiksCubeEnv(gym.Env):
 
     def getlog(self):
         return self.scramble_log, self.action_log
-
