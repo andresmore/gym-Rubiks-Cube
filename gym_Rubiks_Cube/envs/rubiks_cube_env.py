@@ -18,12 +18,12 @@ tileDict = {
 }
 
 
-
 class RubiksCubeEnv(gym.Env):
-    metadata = {'render.modes': ['human']}
+    metadata = {'render.modes': ['rgb_array', 'human', 'ansi']}
 
     def __init__(self, orderNum=3):
         # the action is 6 move x 2 direction = 12
+
         self.action_space = spaces.Discrete(12)
         # input is 9x6 = 54 array
         self.orderNum = orderNum
@@ -34,16 +34,16 @@ class RubiksCubeEnv(gym.Env):
 
         self.scramble_low = 1
         self.scramble_high = 10
-        self.doScamble = True
-
-    def _seed(self, seed=None):
-        self.np_random, seed = np.random.seed(seed)
-        return [seed]
+        self.doScramble = False
+        self.obs = None
+        self.scramble_log = None
+        self.action_log = None
+        self.ncube = None
 
     def step(self, action):
         self.action_log.append(action)
         self.ncube.minimalInterpreter(actionList[action])
-        self.state = self.getstate()
+        self.obs = self._getObs()
         self.step_count = self.step_count + 1
 
         reward = 0.0
@@ -56,34 +56,32 @@ class RubiksCubeEnv(gym.Env):
         if self.step_count > 40:
             done = True
 
-        return self.state, reward, done, others
+        return self.obs, reward, done, others
 
-    def reset(self, *params):
-        self.state = {}
+    def reset(self, seed=None, options={}):
+        super().reset(seed=seed)
+        self.obs = {}
         self.ncube = cube.Cube(order=self.orderNum)
-        if self.doScamble:
+        self.doScramble = options.get("doScramble", True)
+        if self.doScramble:
             self.scramble()
-        self.state = self.getstate()
+
         self.step_count = 0
         self.action_log = []
-        return self.state
+        ob = self._getObs()
+        return ob
 
-    def getstate(self):
-        return np.array([tileDict[i] for i in self.ncube.constructVectorState()])
+    def _getObs(self):
+        return np.array([tileDict[i] for i in self.ncube.constructVectorState()], dtype=np.uint8)
 
     def render(self, mode='rgb', close=False):
-
-        #if close:
-        #    return
-        #self.ncube.displayCube(isColor=True)
-
-        return self.ncube.displayRGB(mode)
-
+        print(mode)
+        return self.ncube.display(mode)
 
     def setScramble(self, low, high, doScamble=True):
         self.scramble_low = low
         self.scramble_high = high
-        self.doScamble = doScamble
+        self.doScramble = doScamble
 
     def scramble(self):
         # set the scramber number
@@ -99,3 +97,4 @@ class RubiksCubeEnv(gym.Env):
 
     def getlog(self):
         return self.scramble_log, self.action_log
+

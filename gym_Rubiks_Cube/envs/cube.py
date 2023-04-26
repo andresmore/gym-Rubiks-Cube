@@ -83,7 +83,7 @@ class Cube:
         self.back = [[' Y ' for y in range(order)] for x in range(order)]
 
     # Displays the ASCII Cube or the Colorized Cube
-    def displayCube(self, isColor=False):
+    def displayCube(self, isColor=True):
         # Display the Top Portion
         for i in range(self.order):
             for j in range(self.order):
@@ -352,7 +352,7 @@ class Cube:
             # clearScreen()
             # self.displayCube(isColor=isColor)
             print(self.constructVectorState(inBits=False))
-            self.displayRGB(mode='human')
+            self.display(mode='human')
             userString = str(input("\n---> "))
             self.minimalInterpreter(userString)
 
@@ -432,22 +432,24 @@ class Cube:
                         return False
         return True
 
-    def displayRGB(self, mode='rgb'):
+    def display(self, mode='rgb_array'):
+
+        if mode == 'ansi':
+            return self.displayCube()
+
         render_array = np.zeros((9, 12, 3), dtype=np.uint8)
         cube_to_render = np.zeros((9, 12), dtype=np.uint8)
         cube_to_render[3:6, :] = 1
         cube_to_render[:, 3:6] = 1
-        print(cube_to_render)
+
         for row in range(9):
             for col in range(12):
                 if cube_to_render[row][col] == 1:
                     render_array[row][col] = self.COLOR_MAP[self.getFace(row, col)[row % 3][col % 3]]
-                    print(f'{row},{col} {self.getFace(row, col)[row % 3][col % 3]}')
 
-        if mode == 'rgb':
+        if mode == 'rgb_array':
             return render_array
         else:
-            print(render_array)
             img = cv2.cvtColor(render_array, cv2.COLOR_BGR2RGB)
             img = cv2.resize(img, (600, 300), interpolation=cv2.INTER_NEAREST)
             cv2.imshow("Cube", np.array(img))
