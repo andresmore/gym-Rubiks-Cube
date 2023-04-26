@@ -62,6 +62,8 @@ class RubiksCubeEnv(gym.Env):
         super().reset(seed=seed)
         self.obs = {}
         self.ncube = cube.Cube(order=self.orderNum)
+        self.step_count = 0
+        self.action_log = []
 
         if scramble == "auto":
             self.scramble()
@@ -71,8 +73,6 @@ class RubiksCubeEnv(gym.Env):
                 self.scramble_log.append(action_num)
                 self.ncube.minimalInterpreter(actionList[action_num])
 
-        self.step_count = 0
-        self.action_log = []
         ob = self._getObs()
         return ob
 
