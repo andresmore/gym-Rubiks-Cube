@@ -49,14 +49,20 @@ class RubiksCubeEnv(gym.Env):
         reward = 0.0
         done = False
         others = {}
-        if self.ncube.isSolved():
-            reward = 1.0
-            done = True
+
+        reward, done = self.calculateReward()
 
         if self.step_count > 40:
             done = True
 
         return self.obs, reward, done, others
+
+    def calculateReward(self):
+        reward = 0
+        if self.ncube.isSolved():
+            reward = 1.0
+            done = True
+        return reward, done
 
     def reset(self, seed=None, scramble="auto"):
         super().reset(seed=seed)
