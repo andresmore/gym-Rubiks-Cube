@@ -45,9 +45,6 @@ class RubiksCubeEnv(gym.Env):
         self.ncube.minimalInterpreter(actionList[action])
         self.obs = self._getObs()
         self.step_count = self.step_count + 1
-
-        reward = 0.0
-        done = False
         others = {}
 
         reward, done = self.calculateReward()
@@ -59,6 +56,7 @@ class RubiksCubeEnv(gym.Env):
 
     def calculateReward(self):
         reward = 0
+        done = False
         if self.ncube.isSolved():
             reward = 1.0
             done = True
