@@ -1,8 +1,8 @@
 # gym-Rubiks-Cube
 The Rubik's Cube is a popular game. If you still didn't know it, you can go to check it on Wiki.  
 [Wiki: Rubik's Cube](https://en.wikipedia.org/wiki/Rubik%27s_Cube "Wiki: Rubik's Cube")  
-This is the open gym environment for the Rubik's Cube. You can check it here.  
-https://gym.openai.com/
+This is the open gymnasium environment for the Rubik's Cube, for more information about the gymnasium, you can check the official website. 
+https://gymnasium.farama.org/
 
 ---
 # Installation
