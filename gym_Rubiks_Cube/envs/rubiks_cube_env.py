@@ -56,7 +56,7 @@ class RubiksCubeEnv(gym.Env):
         terminated = done
         truncated = self.step_count > self.MAX_STEPS
 
-        return self.obs, reward, terminated, truncated, others
+        return self.obs, reward, terminated or truncated, others
 
     def calculateReward(self):
         reward = 0
@@ -66,7 +66,7 @@ class RubiksCubeEnv(gym.Env):
             done = True
         return reward, done
 
-    def reset(self, *, seed=None, options=None, scramble="auto"):
+    def reset(self, return_info=None, seed=None, options=None, scramble="auto"):
         super().reset(seed=seed)
         self.ncube = cube.Cube(order=self.orderNum)
         self.step_count = 0
@@ -88,7 +88,7 @@ class RubiksCubeEnv(gym.Env):
     def _get_obs(self):
         return np.array([tileDict[i] for i in self.ncube.constructVectorState()], dtype=np.uint8)
 
-    def render(self):
+    def render(self, mode='rgb_array', **kwargs):
         return self.ncube.display(self.render_mode)
 
     def setScramble(self, low, high, do_scramble=True):
