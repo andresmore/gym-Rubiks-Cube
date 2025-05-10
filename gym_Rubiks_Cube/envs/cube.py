@@ -74,6 +74,9 @@ class Cube:
 
     # Define all the faces.
     def __init__(self, order):
+        if order < 2 or order > 3:
+            print("Order must be 2 or 3")
+            raise ValueError("Order must be 2 or 3")
         self.order = order
         self.front = [[' W ' for y in range(order)] for x in range(order)]
         self.up = [[' G ' for y in range(order)] for x in range(order)]
@@ -83,7 +86,7 @@ class Cube:
         self.back = [[' Y ' for y in range(order)] for x in range(order)]
 
     # Displays the ASCII Cube or the Colorized Cube
-    def displayCube(self, isColor=True):
+    def displayCube(self, isColor=False):
         # Display the Top Portion
         for i in range(self.order):
             for j in range(self.order):
@@ -349,8 +352,8 @@ class Cube:
     # Interactive interpreter for the cube.
     def client(self, isColor=True):
         while True:
-            # clearScreen()
-            # self.displayCube(isColor=isColor)
+            clearScreen()
+            self.displayCube(isColor=isColor)
             print(self.constructVectorState(inBits=False))
             self.display(mode='human')
             userString = str(input("\n---> "))
@@ -437,15 +440,15 @@ class Cube:
         if mode == 'ansi':
             return self.displayCube()
 
-        render_array = np.zeros((9, 12, 3), dtype=np.uint8)
-        cube_to_render = np.zeros((9, 12), dtype=np.uint8)
-        cube_to_render[3:6, :] = 1
-        cube_to_render[:, 3:6] = 1
+        render_array = np.zeros((self.order*3, self.order*4, 3), dtype=np.uint8)
+        cube_to_render = np.zeros((self.order*3, self.order*4), dtype=np.uint8)
+        cube_to_render[self.order:2*self.order, :] = 1
+        cube_to_render[:, self.order:2*self.order] = 1
 
-        for row in range(9):
-            for col in range(12):
+        for row in range(self.order*3):
+            for col in range(self.order*4):
                 if cube_to_render[row][col] == 1:
-                    render_array[row][col] = self.COLOR_MAP[self.getFace(row, col)[row % 3][col % 3]]
+                    render_array[row][col] = self.COLOR_MAP[self.getFace(row, col)[row % self.order][col % self.order]]
 
         if mode == 'rgb_array':
             return render_array
@@ -457,20 +460,21 @@ class Cube:
             cv2.destroyAllWindows()
 
     def getFace(self, row, col):
-        if row <= 2:
+        o = self.order  # face size
+
+        if row < o:
             return self.up
-        elif row <= 5:
-            if col <= 2:
+        elif row < 2 * o:
+            if col < o:
                 return self.left
-            if col <= 5:
+            elif col < 2 * o:
                 return self.front
-            if col <= 8:
+            elif col < 3 * o:
                 return self.right
             else:
                 return self.back
         else:
             return self.down
-
 
 # A useful clearscreen function
 def clearScreen():

@@ -1,5 +1,5 @@
-import gym
-from gym import spaces
+import gymnasium as gym
+from gymnasium import spaces
 import numpy as np
 import random
 from gym_Rubiks_Cube.envs import cube
@@ -19,14 +19,19 @@ tileDict = {
 
 
 class RubiksCubeEnv(gym.Env):
-    metadata = {'render.modes': ['rgb_array', 'human', 'ansi']}
+    MAX_STEPS = 100
+    metadata = {
+        'render_modes': ['rgb_array', 'human', 'ansi'],
+        'render_fps': 4
+    }
 
-    def __init__(self, orderNum=3):
+    def __init__(self, render_mode='rgb_array', order_num=3):
         # the action is 6 move x 2 direction = 12
-
+        self.doScramble = None
+        self.render_mode = render_mode
         self.action_space = spaces.Discrete(12)
         # input is 9x6 = 54 array
-        self.orderNum = orderNum
+        self.orderNum = order_num
         low = np.array([0 for i in range(self.orderNum * self.orderNum * 6)])
         high = np.array([5 for i in range(self.orderNum * self.orderNum * 6)])
         self.observation_space = spaces.Box(low, high, dtype=np.uint8)  # flattened
@@ -43,16 +48,15 @@ class RubiksCubeEnv(gym.Env):
     def step(self, action):
         self.action_log.append(action)
         self.ncube.minimalInterpreter(actionList[action])
-        self.obs = self._getObs()
+        self.obs = self._get_obs()
         self.step_count = self.step_count + 1
         others = {}
-
         reward, done = self.calculateReward()
 
-        if self.step_count > 40:
-            done = True
+        terminated = done
+        truncated = self.step_count > self.MAX_STEPS
 
-        return self.obs, reward, done, others
+        return self.obs, reward, terminated, truncated, others
 
     def calculateReward(self):
         reward = 0
@@ -62,9 +66,8 @@ class RubiksCubeEnv(gym.Env):
             done = True
         return reward, done
 
-    def reset(self, seed=None, scramble="auto"):
+    def reset(self, *, seed=None, options=None, scramble="auto"):
         super().reset(seed=seed)
-        self.obs = {}
         self.ncube = cube.Cube(order=self.orderNum)
         self.step_count = 0
         self.action_log = []
@@ -78,20 +81,20 @@ class RubiksCubeEnv(gym.Env):
                 self.scramble_log.append(action_num)
                 self.ncube.minimalInterpreter(actionList[action_num])
 
-        ob = self._getObs()
-        return ob
+        ob = self._get_obs()
+        info = {}
+        return ob, info
 
-    def _getObs(self):
+    def _get_obs(self):
         return np.array([tileDict[i] for i in self.ncube.constructVectorState()], dtype=np.uint8)
 
-    def render(self, mode='rgb', close=False):
-        print(mode)
-        return self.ncube.display(mode)
+    def render(self):
+        return self.ncube.display(self.render_mode)
 
-    def setScramble(self, low, high, doScamble=True):
+    def setScramble(self, low, high, do_scramble=True):
         self.scramble_low = low
         self.scramble_high = high
-        self.doScramble = doScamble
+        self.doScramble = do_scramble
 
     def scramble(self):
         # set the scramber number
