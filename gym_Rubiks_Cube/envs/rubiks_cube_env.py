@@ -82,8 +82,8 @@ class RubiksCubeEnv(gym.Env):
                 self.ncube.minimalInterpreter(actionList[action_num])
 
         ob = self._get_obs()
-        info = {}
-        return ob, info
+
+        return ob
 
     def _get_obs(self):
         return np.array([tileDict[i] for i in self.ncube.constructVectorState()], dtype=np.uint8)
@@ -91,7 +91,7 @@ class RubiksCubeEnv(gym.Env):
     def render(self, mode='rgb_array', **kwargs):
         return self.ncube.display(self.render_mode)
 
-    def setScramble(self, low, high, do_scramble=True):
+    def set_scramble(self, low, high, do_scramble=True):
         self.scramble_low = low
         self.scramble_high = high
         self.doScramble = do_scramble
@@ -108,5 +108,5 @@ class RubiksCubeEnv(gym.Env):
                 self.scramble_log.append(action)
                 self.ncube.minimalInterpreter(actionList[action])
 
-    def getlog(self):
+    def get_log(self):
         return self.scramble_log, self.action_log
