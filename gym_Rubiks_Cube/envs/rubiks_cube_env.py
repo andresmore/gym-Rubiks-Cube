@@ -1,5 +1,5 @@
-import gymnasium as gym
-from gymnasium import spaces
+import gym as gym
+from gym import spaces
 import numpy as np
 import random
 from gym_Rubiks_Cube.envs import cube
@@ -34,7 +34,7 @@ class RubiksCubeEnv(gym.Env):
         self.orderNum = order_num
         low = np.array([0 for i in range(self.orderNum * self.orderNum * 6)])
         high = np.array([5 for i in range(self.orderNum * self.orderNum * 6)])
-        self.observation_space = spaces.Box(low, high, dtype=np.int64)  # flattened
+        self.observation_space = spaces.Box(low, high, dtype=np.uint8)  # flattened
         self.step_count = 0
 
         self.scramble_low = 1
@@ -86,7 +86,7 @@ class RubiksCubeEnv(gym.Env):
         return ob, info
 
     def _get_obs(self):
-        return np.array([tileDict[i] for i in self.ncube.constructVectorState()], dtype=np.int64)
+        return np.array([tileDict[i] for i in self.ncube.constructVectorState()], dtype=np.uint8)
 
     def render(self):
         return self.ncube.display(self.render_mode)
