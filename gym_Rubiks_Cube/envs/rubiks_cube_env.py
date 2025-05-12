@@ -85,6 +85,7 @@ class RubiksCubeEnv(gym.Env):
 
         return ob
 
+
     def _get_obs(self):
         return np.array([tileDict[i] for i in self.ncube.constructVectorState()], dtype=np.uint8)
 
