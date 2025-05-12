@@ -88,7 +88,7 @@ class RubiksCubeEnv(gym.Env):
     def _get_obs(self):
         return np.array([tileDict[i] for i in self.ncube.constructVectorState()], dtype=np.uint8)
 
-    def render(self, **kwargs):
+    def render(self, mode='rgb_array', **kwargs):
         return self.ncube.display(self.render_mode)
 
     def set_scramble(self, low, high, do_scramble=True):
